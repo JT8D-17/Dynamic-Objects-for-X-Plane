@@ -1,0 +1,30 @@
+# ROUTE FILE FORMAT SPECIFICATION
+#
+# OBJECT definition
+# Requires at least 6 elements:
+# OBJECT,name,type,path to OBJ
+# Paths MUST start with XPROOT (X-Plane folder) or LOCAL (PythonPlugins)
+# Append paths to additional objects for this route with a comma at the end of the line
+#
+# PERFORMANCE definition (optional)
+# PERFORMANCE, acceleration in m/s2, pitch rate in °/s, heading rate in °/s, roll rate in °/s, maximum velocity in m/s, maximum pitch in °, maximum bank in °
+#
+# POINT definition
+# Requires the first 3 elements, the rest are optional:
+# POINT, latitude (decimal), longitude (decimal), elevation reference, elevation offset in m,maximum velocity on leg to waypoint in m/s
+# Elevation reference: AGL = above ground, ABS = absolute
+#
+# LOOP, RETURN, STOP = Route termination specifiers, wait time (seconds) at last waypoint with LOOP or RETURN
+#
+OBJECT,MyObj,SHIP,XPROOT/Resources/default scenery/sim objects/ships/parts/ContainerCarrier_155A_BaseModel.obj,XPROOT/Resources/default scenery/sim objects/ships/parts/ContainerCarrier_155A_Dynamic_Add.obj
+PERFORMANCE,3,,3
+POINT,40.7784,124.1997,AGL,0,8
+POINT,40.7718,124.2097,,,8
+POINT,40.7721,124.2032
+LOOP,
+
+OBJECT,,SHIP,LOCAL/Ships/Sail_490_01.obj
+POINT,40.7531,124.2168,AGL,0,12
+POINT,40.7739,124.2529,AGL,0,9
+RETURN,5
+

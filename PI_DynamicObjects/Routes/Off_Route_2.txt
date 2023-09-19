@@ -1,0 +1,9 @@
+OBJECT,Balloon,,XPROOT/Resources/default scenery/sim objects/dynamic/balloon2.obj
+POINT,40.7815,124.2392,ABS,30,5
+POINT,40.7952,124.2176,ABS,300,7
+RETURN
+
+OBJECT,Sailboat,,LOCAL/Ships/Sail_490_01.obj
+POINT,53.8647,14.1083,AGL,0,5
+POINT,53.8676,14.1876,AGL,0,10
+LOOP,30

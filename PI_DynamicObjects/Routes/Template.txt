@@ -1,0 +1,19 @@
+# ROUTE FILE FORMAT SPECIFICATION
+#
+# OBJECT definition
+# Requires at least 4 elements:
+# OBJECT,name,type,path to OBJ
+# Paths MUST start with XPROOT (X-Plane folder) or LOCAL (PythonPlugins)
+# Append paths to additional objects for this route with a comma at the end of the line, e.g. ...,XPROOT/path/to/obj1,LOCAL/path/to/obj2
+# If an object uses dataref(s), append then divided by a semicolon aftrer the path to the object, e.g. XPROOT/path/to/myobj3;object/dataref/1;object/dataref/2
+#
+# PERFORMANCE definition (optional)
+# PERFORMANCE, acceleration in m/s2, pitch rate in °/s, heading rate in °/s, roll rate in °/s, maximum velocity in m/s, maximum pitch in °, maximum bank in °
+#
+# POINT definition
+# Requires the first 3 elements, the rest are optional:
+# POINT, latitude (decimal), longitude (decimal), elevation reference, elevation offset in m,maximum velocity on leg to waypoint in m/s
+# Elevation reference: AGL = above ground, ABS = absolute
+#
+# LOOP, RETURN, STOP = Route termination specifiers, wait time (seconds) at last waypoint with LOOP or RETURN
+#

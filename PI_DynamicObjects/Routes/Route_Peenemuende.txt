@@ -1,0 +1,47 @@
+# ROUTE FILE FORMAT SPECIFICATION
+#
+# OBJECT definition
+# Requires at least 4 elements:
+# OBJECT,name,type,path to OBJ
+# Paths MUST start with XPROOT (X-Plane folder) or LOCAL (PythonPlugins)
+# Append paths to additional objects for this route with a comma at the end of the line, e.g. ...,XPROOT/path/to/obj1,LOCAL/path/to/obj2
+# If an object uses dataref(s), append then divided by a semicolon aftrer the path to the object, e.g. XPROOT/path/to/myobj3;object/dataref/1;object/dataref/2
+#
+# PERFORMANCE definition (optional)
+# PERFORMANCE, acceleration in m/s2, pitch rate in °/s, heading rate in °/s, roll rate in °/s, maximum velocity in m/s, maximum pitch in °, maximum bank in °
+#
+# POINT definition
+# Requires the first 3 elements, the rest are optional:
+# POINT, latitude (decimal), longitude (decimal), elevation reference, elevation offset in m,maximum velocity on leg to waypoint in m/s
+# Elevation reference: AGL = above ground, ABS = absolute
+#
+# LOOP, RETURN, STOP = Route termination specifiers, wait time (seconds) at last waypoint with LOOP or RETURN
+#
+
+OBJECT,,SHIP,LOCAL/Ships/Sail_490_01.obj
+POINT,54.1669062,13.7416649
+POINT,54.1688658,13.7436390,,,20
+POINT,54.1738901,13.7457848,,,30
+POINT,54.1733374,13.7518787,,,50
+POINT,54.1699712,13.7541962,,,90
+POINT,54.1674590,13.7512779
+LOOP
+
+OBJECT,,,XPROOT/Resources/default scenery/sim objects/ships/Whaler_518_03.obj
+POINT,54.1593182,13.7381458,,
+POINT,54.1697200,13.7352276
+RETURN
+
+OBJECT,MyObj,SHIP,XPROOT/Resources/default scenery/sim objects/ships/parts/ContainerCarrier_155A_BaseModel.obj;my/dref/1;my/dref/2,XPROOT/Resources/default scenery/sim objects/ships/parts/ContainerCarrier_155A_Dynamic_Add.obj;more/datarefs1;more/datarefs2
+PERFORMANCE,3,,3
+POINT,54.1628360,13.7407207
+POINT,54.1736891,13.7376308,,,10
+POINT,54.1758493,13.7493896
+
+
+
+OBJECT,Balloon,HELICOPTER,XPROOT/Resources/default scenery/sim objects/dynamic/balloon2.obj
+PERFORMANCE,,,,,100
+POINT,54.1640923,13.7644529,AGL,20,50
+POINT,54.1503778,13.7869191,AGL,300,30
+RETURN
