@@ -3,7 +3,6 @@
 MODULES
 '''
 import os
-from .Helpers import info_output
 '''
 VARIABLES
 '''
@@ -24,7 +23,7 @@ req_len_pt = 3 # Required minimum elements for POINT lines
 '''
 FUNCTIONS
 '''
-def Init_Routes(XPPath):
+def Init_Routes():
     temp_object = []
     out_list = []
     object_count = 0 # Reset object counter
@@ -58,7 +57,9 @@ def Init_Routes(XPPath):
                             for x in range(3,len(tempdata)):
                                 tempdata2 = tempdata[x].split(";") # Split line at semicolon
                                 if tempdata2[0]: # Check for missing path information
-                                    obj_path = tempdata2[0].replace("XPROOT",XPPath).replace("LOCAL",os.path.dirname(os.path.realpath(__file__))) # Replace placeholders by actual paths
+                                    obj_path = tempdata2[0].replace("XPROOT","/media/X-Plane/X-Plane_12_Main").replace("LOCAL",os.path.dirname(os.path.realpath(__file__))) # Replace placeholders by actual paths
+                                    #obj_path = tempdata2[0].replace("XPROOT","").replace("LOCAL",xp.PLUGINSPATH+"/PI_DynamicObjects/") # Replace placeholders by actual paths
+                                    print(obj_path)
                                     if os.path.isfile(obj_path): # Check if file exists
                                         temp_object.append(obj_path)
                                         #print("ROUTE CHECK: "+str(temp_object[0]))
@@ -73,7 +74,8 @@ def Init_Routes(XPPath):
                                         temp_datarefs[-1].append(tempdata2[y])
                             if len(temp_object) == 1:
                                 print("ERROR: Not enough valid object paths assigned to "+temp_object[0]+" (see line "+str(line_count)+"), skipping route.")
-                            elif len(temp_object) > 1 and temp_object[0] == "None": #Check for object name
+                            elif len(temp_object) > 2 and temp_object[0] == "None": #Check for object name
+                                print(temp_object)
                                 temp_object[0] = os.path.basename(temp_object[2]) # Generate generic object name from object file name
                         else:
                             print("ERROR: OBJECT in "+file+", at line "+str(line_count)+" requires >="+str(req_len_obj)+" elements, skipping route.")
@@ -120,7 +122,7 @@ def Init_Routes(XPPath):
                         temp_route_end[0] = tempdata[0]
                         if len(tempdata) > 1 and tempdata[1] is not None and tempdata[1].isnumeric():
                             temp_route_end[1] = tempdata[1]
-                        #info_output("Found route terminator: "+temp_route_end[0]+" with wait time "+str(temp_route_end[1])+" s.")
+                        #print("Found route terminator: "+temp_route_end[0]+" with wait time "+str(temp_route_end[1])+" s.")
                     ## END OF ROUTE
                     if (not n.strip() or line_count == len(list_lines)) and len(temp_object) > 0 and len(temp_waypoints) > 0: # At blank lines or end of file, check for object data and waypoints
                         if len(temp_object) >= 2 and len(temp_waypoints) >= 2:
@@ -129,7 +131,6 @@ def Init_Routes(XPPath):
                             print("---------- ROUTE "+str(route_count)+"\nObject(s):   "+str(out_list[-1][0])+"\nPerformance: "+str(out_list[-1][1])+"\nWaypoints:   "+str(out_list[-1][2])+"\nTerminator:  "+str(out_list[-1][3])+"\nDatarefs:    "+str(out_list[-1][4])+"\n----------")
                         elif len(temp_waypoints) < 2:
                             print("ERROR: Less than 2 waypoints in route, skipping route.")
-                        #info_output("")
                         temp_object = []
                         temp_perf = [Obj_Vel_Rate,Obj_Pitch_Rate,Obj_Heading_Rate,Obj_Roll_Rate,Obj_Vel_Max,Obj_Pitch_Max,Obj_Roll_Max]
                         temp_waypoints = []
@@ -137,5 +138,5 @@ def Init_Routes(XPPath):
                         temp_datarefs = []
 
 
-    info_output("\nFINISHED ADDING ROUTES (Total: "+str(route_count)+")\n")
+    #print("\nFINISHED ADDING ROUTES (Total: "+str(route_count)+")\n")
     return out_list

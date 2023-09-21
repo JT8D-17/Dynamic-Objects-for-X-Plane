@@ -40,7 +40,8 @@ def waypoint_switcher(obj_list,rte_list,ind):
     if obj_list[ind][3][3] == 1:
         obj_list[ind][3][3] = 0 # Set deceleration mode
     #print(obj_list[ind][3])
-#
+
+# Checks the velocity limit of a waypoint
 def check_wp_vel_limit(rte_list,ind,wp_ind):
     if rte_list[ind][2][wp_ind][4] == -1: # Check that there is no waypoint velocity limit
         target_vel = rte_list[ind][1][4] # Set target velocity to maximum object velocity
@@ -50,9 +51,10 @@ def check_wp_vel_limit(rte_list,ind,wp_ind):
         else:
             target_vel = rte_list[ind][1][4] # Target velocity is object velocity limit
     return target_vel
+
 # Manages an object's velocity based on acceleration
-def velocity_manager(obj_list,rte_list,ind,obj_vel,wp_dist,wp_ttg,dt):
-    accel = rte_list[ind][1][0] # Get acceleration from performance data
+def velocity_manager(obj_list,rte_list,ind,obj_vel,wp_dist,wp_ttg,delta_t):
+    accel = rte_list[ind][1][0] * delta_t # Get acceleration from performance data
     wp_ind = obj_list[ind][3][0] # Get waypoint index
     target_vel = 0
     # Set target velocity
@@ -60,31 +62,34 @@ def velocity_manager(obj_list,rte_list,ind,obj_vel,wp_dist,wp_ttg,dt):
         if rte_list[ind][3][0] == "LOOP": # Only for looping routes
             target_vel = check_wp_vel_limit(rte_list,ind,wp_ind)
         else:
-            if wp_dist > (0.5 * accel * wp_ttg**2):
+            if obj_list[ind][3][3] == 0:
                 target_vel = check_wp_vel_limit(rte_list,ind,wp_ind)
-            elif obj_list[ind][3][3] == 0: # Check if deceleration mode is on
-                target_vel = 0 # Stop at route start or route end
-                obj_list[ind][3][3] = 1 # Set deceleration mode
+                 #if wp_ttg > (obj_vel / accel) and obj_list[ind][3][3] == 0:
+                #if obj_vel == check_wp_vel_limit(rte_list,ind,wp_ind) and wp_dist <= (0.5 * accel * wp_ttg**2):
+                if obj_vel == check_wp_vel_limit(rte_list,ind,wp_ind) and wp_ttg <= (obj_vel / accel):
+                    target_vel = 0 # Stop at route start or route end
+                    obj_list[ind][3][3] = 1 # Set deceleration mode
     else:
         target_vel = check_wp_vel_limit(rte_list,ind,wp_ind)
 
 
-    print(target_vel, (obj_vel / accel))
+    print(target_vel, (obj_vel / accel),obj_list[ind][3][3])
 
     if obj_vel < target_vel:
-        obj_vel = obj_vel + (accel * dt) # Accelerate
+        obj_vel = obj_vel + accel # Accelerate
         if obj_vel > target_vel: # Clamp to target velocity
             obj_vel = target_vel
     if obj_vel > target_vel:
-        obj_vel = obj_vel - (accel * dt) # Decelerate
+        obj_vel = obj_vel - accel # Decelerate
         if obj_vel > target_vel:
             obj_vel = target_vel # Clamp to target velocity
 
     return obj_vel
+
 # Manages an object's bearing
-def bearing_manager(obj_list,rte_list,ind,obj_brg,wp1_brg,wp2_brg,wp1_ttg):
+def bearing_manager(obj_list,rte_list,ind,obj_brg,wp1_brg,wp2_brg,wp1_ttg,delta_t):
     #
-    turn_rate = rte_list[ind][1][2] #* 9 # Heading/turn rate from object performance data
+    turn_rate = rte_list[ind][1][2] * delta_t # Heading/turn rate from object performance data scaled by refresh interval
     #
     if obj_list[ind][3][0] > 0 and obj_list[ind][3][0] < (len(rte_list[ind][2])-1): # Current waypoint must not be first or last to initiate a turn
         if (wp1_ttg * 1.1) < ((wp2_brg - wp1_brg) / turn_rate): # Check if time to go + 10% is less than the required time for the turn
@@ -126,8 +131,9 @@ def move(lat1,lon1,dist,bearing):
     lat2 = asin(sin(lat1) * cos(dist/r_Earth) + cos(lat1) * sin(dist/r_Earth) * cos(a))
     lon2 = lon1 + atan2(sin(a) * sin(dist/r_Earth) * cos(lat1),cos(dist/r_Earth) - sin(lat1) * sin(lat2))
     return (degrees(lat2), degrees(lon2))
+
 # Main object movement function
-def move_objects(obj_list,rte_list,dt):
+def move_objects(obj_list,rte_list,delta_t):
     for n in range(len(obj_list)): # Iterate through object list
         # Next waypoint
         wp_next1_ind = obj_list[n][3][0] # Index
@@ -147,11 +153,11 @@ def move_objects(obj_list,rte_list,dt):
             wp_next1_ttg = float('inf')
             wp_next2_ttg = float('inf')
         # Update Object velocity
-        obj_list[n][2][6] = velocity_manager(obj_list,rte_list,n,obj_list[n][2][6],wp_next1_dist,wp_next1_ttg,dt) # Manage object velocity
+        obj_list[n][2][6] = velocity_manager(obj_list,rte_list,n,obj_list[n][2][6],wp_next1_dist,wp_next1_ttg,delta_t) # Manage object velocity
         # Update object bearing
-        obj_list[n][2][4] = bearing_manager(obj_list,rte_list,n,obj_list[n][2][4],wp_next1_brg,wp_next2_brg,wp_next1_ttg) # Manage object heading
+        obj_list[n][2][4] = bearing_manager(obj_list,rte_list,n,obj_list[n][2][4],wp_next1_brg,wp_next2_brg,wp_next1_ttg,delta_t) # Manage object heading
         # Update position
-        obj_list[n][2][0],obj_list[n][2][1] = move(obj_list[n][2][0],obj_list[n][2][1],(obj_list[n][2][6] * dt),obj_list[n][2][4]) # Move object to new lat and lon, using the distance covered in this tick
+        obj_list[n][2][0],obj_list[n][2][1] = move(obj_list[n][2][0],obj_list[n][2][1],(obj_list[n][2][6] * delta_t),obj_list[n][2][4]) # Move object to new lat and lon, using the distance covered in this tick
         # Status output
         print("------- "+obj_list[n][0]+"\n"+
               "Pos: "+str(obj_list[n][2][0])+" N, "+str(obj_list[n][2][1])+" E, Heading: "+f'{obj_list[n][2][4]:.1f}'+"°, Velocity: "+f'{obj_list[n][2][6]:.1f}'+" m/s\n"+
@@ -160,5 +166,5 @@ def move_objects(obj_list,rte_list,dt):
               )
 
         #distance = haversine(obj_list[n][2][0],obj_list[n][2][1],wp_next1_lat,wp_next1_lon) # Update distance to next waypoint
-        #if wp_next1_dist <= (obj_list[n][2][6] * dt): # Check if the remaining distance is less than the distance that would be covered this tick
+        #if wp_next1_dist <= (obj_list[n][2][6] * delta_t): # Check if the remaining distance is less than the distance that would be covered this tick
         #    waypoint_switcher(obj_list,rte_list,n)
