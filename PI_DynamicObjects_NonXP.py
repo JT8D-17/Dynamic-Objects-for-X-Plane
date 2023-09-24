@@ -3,8 +3,8 @@
 LIBRARIES
 '''
 import os,time
-from PI_DynamicObjects.Routes import z_Object_Datarefs
-from PI_DynamicObjects import Helpers,Import_Routes,Objects,Movement
+from DynamicObjects.Routes import z_Object_Datarefs
+from DynamicObjects import Helpers,Import_Routes,Objects,Movement
 '''
 FUNCTIONS
 '''

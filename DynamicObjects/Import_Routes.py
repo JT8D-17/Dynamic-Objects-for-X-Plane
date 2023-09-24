@@ -3,6 +3,7 @@
 MODULES
 '''
 import os
+import xp
 '''
 VARIABLES
 '''
@@ -10,7 +11,7 @@ End_Mode = "LOOP" # The default route terminator
 End_Wait_Time = 0 # The default wait time at the last waypoint
 Obj_Heading_Rate = 5 # The object' turn rate in °/s
 Obj_Vel_Max = 15 # The default maximum object velocity in m/s
-Obj_Vel_Rate = 5 # The default acceleration in m/s²
+Obj_Vel_Rate = 5 # The default acceleration in m/s²/mnt/Data/X-Plane_12_Develop/
 Obj_Pitch_Max = 30 # The default maximum object pitch in °
 Obj_Pitch_Rate = 1 # The object's pitch rate in °/s
 Obj_Roll_Max = 30 # The default maximum object roll in °
@@ -48,7 +49,7 @@ def Init_Routes():
                         if len(tempdata) >= req_len_obj: # Check for malformed OBJECT lines
                             object_count += 1 # Increment object counter for generic object name generation
                             temp_object = ["None","UNKNOWN"]
-                            ## OBJECT NAME, ACCELERATION, VELOCITY, TURN RATE
+                            ## OBJECT NAME, TYPE
                             if tempdata[1]: # Check for empty names
                                 temp_object[0] = tempdata[1] # Use custom name
                             if tempdata[2]: # Check object type
@@ -57,12 +58,12 @@ def Init_Routes():
                             for x in range(3,len(tempdata)):
                                 tempdata2 = tempdata[x].split(";") # Split line at semicolon
                                 if tempdata2[0]: # Check for missing path information
-                                    obj_path = tempdata2[0].replace("XPROOT","/media/X-Plane/X-Plane_12_Main").replace("LOCAL",os.path.dirname(os.path.realpath(__file__))) # Replace placeholders by actual paths
-                                    #obj_path = tempdata2[0].replace("XPROOT","").replace("LOCAL",xp.PLUGINSPATH+"/PI_DynamicObjects/") # Replace placeholders by actual paths
+                                    #obj_path = tempdata2[0].replace("XPROOT","/mnt/Data/X-Plane_12_Develop").replace("LOCAL",os.path.dirname(os.path.realpath(__file__))) # Replace placeholders by actual paths
+                                    obj_path = tempdata2[0].replace("XPROOT",xp.getSystemPath()).replace("LOCAL",xp.PLUGINSPATH+"/DynamicObjects/") # Replace placeholders by actual paths
                                     print(obj_path)
                                     if os.path.isfile(obj_path): # Check if file exists
                                         temp_object.append(obj_path)
-                                        #print("ROUTE CHECK: "+str(temp_object[0]))
+                                        print("ROUTE CHECK: "+str(temp_object[0]))
                                     else: # Print error if it does not
                                         print("ERROR: Object path "+obj_path+" not found.")
                                 else:

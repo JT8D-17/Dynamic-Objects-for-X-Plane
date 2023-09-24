@@ -4,6 +4,7 @@ MODULES
 '''
 from math import asin,atan2,sin,cos,degrees,radians,sqrt
 import os
+import xp
 '''
 VARIABLES
 '''
@@ -65,10 +66,11 @@ def velocity_manager(obj_list,rte_list,ind,obj_vel,wp_dist,wp_ttg,delta_t):
             if obj_list[ind][3][3] == 0:
                 target_vel = check_wp_vel_limit(rte_list,ind,wp_ind)
                  #if wp_ttg > (obj_vel / accel) and obj_list[ind][3][3] == 0:
-                #if obj_vel == check_wp_vel_limit(rte_list,ind,wp_ind) and wp_dist <= (0.5 * accel * wp_ttg**2):
-                if obj_vel == check_wp_vel_limit(rte_list,ind,wp_ind) and wp_ttg <= (obj_vel / accel):
+                if obj_vel == check_wp_vel_limit(rte_list,ind,wp_ind) and wp_dist < (0.5 * obj_vel**2 / accel):
+                #if obj_vel == check_wp_vel_limit(rte_list,ind,wp_ind) and wp_ttg <= (obj_vel / accel):
                     target_vel = 0 # Stop at route start or route end
                     obj_list[ind][3][3] = 1 # Set deceleration mode
+
     else:
         target_vel = check_wp_vel_limit(rte_list,ind,wp_ind)
 
@@ -132,39 +134,76 @@ def move(lat1,lon1,dist,bearing):
     lon2 = lon1 + atan2(sin(a) * sin(dist/r_Earth) * cos(lat1),cos(dist/r_Earth) - sin(lat1) * sin(lat2))
     return (degrees(lat2), degrees(lon2))
 
+# Returns a waypoint's coordinates by index
+def wp_coords(rte_list,obj_list,index,wp_index):
+    return rte_list[index][2][wp_ind][0], rte_list[index][2][wp_ind][1]
+
+# Returns latitude, longitude, distance and bearing of a waypoint
+def return_waypoint_data(rte_list,obj_list,index,in_vel,offset):
+    wp_index1,wp_index2 = obj_list[index][3][0],obj_list[index][3][1] # Get indicesof waypoints
+    if offset == 0:
+        lat1,lon1 = obj_list[index][2][0],obj_list[index][2][1] # Current object position
+        lat2,lon2 = rte_list[index][2][wp_index1][0],rte_list[index][2][wp_index1][1]
+    else:
+        lat1,lon1 = rte_list[index][2][wp_index1][0],rte_list[index][2][wp_index1][1]
+        lat2,lon2 = rte_list[index][2][wp_index2][0],rte_list[index][2][wp_index2][1]
+
+    out_dist = haversine(lat1,lon1,lat2,lon2)
+    out_brg = calc_bearing(lat1,lon1,lat2,lon2)
+
+    if in_vel != 0:
+        out_ttg = out_dist / in_vel # Time to go
+    else:
+        out_ttg = float('inf')
+
+    return (lat2,lon2,out_brg,out_dist,out_ttg)
+
 # Main object movement function
 def move_objects(obj_list,rte_list,delta_t):
     for n in range(len(obj_list)): # Iterate through object list
         # Next waypoint
-        wp_next1_ind = obj_list[n][3][0] # Index
-        wp_next1_lat,wp_next1_lon = rte_list[n][2][wp_next1_ind][0],rte_list[n][2][wp_next1_ind][1] # Coordinates
-        wp_next1_dist = haversine(obj_list[n][2][0],obj_list[n][2][1],wp_next1_lat,wp_next1_lon) # Distance from current position
-        wp_next1_brg = calc_bearing(obj_list[n][2][0],obj_list[n][2][1],wp_next1_lat,wp_next1_lon) # Current bearing
-        # Waypoint after next waypoint
-        wp_next2_ind = obj_list[n][3][1] # Index
-        wp_next2_lat,wp_next2_lon = rte_list[n][2][wp_next2_ind][0],rte_list[n][2][wp_next2_ind][1] # Coordinates
-        wp_next2_dist = haversine(wp_next1_lat,wp_next1_lon,wp_next2_lat,wp_next2_lon) + wp_next1_dist # Distance from current position, considering next waypoint
-        wp_next2_brg = calc_bearing(wp_next1_lat,wp_next1_lon,wp_next2_lat,wp_next2_lon) # Bearing between waypoints
+        #wp_next1 = return_waypoint_data(rte_list,obj_list,n,obj_list[n][2][6],0)
+        #wp_next2 = return_waypoint_data(rte_list,obj_list,n,obj_list[n][2][6],1)
 
-        if obj_list[n][2][6] != 0:
-            wp_next1_ttg = wp_next1_dist / obj_list[n][2][6] # Time to go
-            wp_next2_ttg = wp_next2_dist / obj_list[n][2][6] # Time to go
-        else:
-            wp_next1_ttg = float('inf')
-            wp_next2_ttg = float('inf')
+
+        #,wp_next1_dist,wp_next1_brg = return_waypoint_data(rte_list,obj_list,obj_list[n][3][0])
+        #wp_next2_lat,wp_next2_lon,wp_next2_dist,wp_next2_brg = return_waypoint_data(rte_list,obj_list,obj_list[n][3][1])
+        #wp_next1_ind = obj_list[n][3][0] # Index
+        #wp_next1_lat,wp_next1_lon = rte_list[n][2][wp_next1_ind][0],rte_list[n][2][wp_next1_ind][1] # Coordinates
+        #wp_next1_dist = haversine(obj_list[n][2][0],obj_list[n][2][1],wp_next1_lat,wp_next1_lon) # Distance from current position
+        #wp_next1_brg = calc_bearing(obj_list[n][2][0],obj_list[n][2][1],wp_next1_lat,wp_next1_lon) # Current bearing
+        # Waypoint after next waypoint
+        #wp_next2_ind = obj_list[n][3][1] # Index
+        #wp_next2_lat,wp_next2_lon = rte_list[n][2][wp_next2_ind][0],rte_list[n][2][wp_next2_ind][1] # Coordinates
+        #wp_next2_dist = haversine(wp_next1_lat,wp_next1_lon,wp_next2_lat,wp_next2_lon) + wp_next1_dist # Distance from current position, considering next waypoint
+        #wp_next2_brg = calc_bearing(wp_next1_lat,wp_next1_lon,wp_next2_lat,wp_next2_lon) # Bearing between waypoints
+
+        # Initial waypoint data assignment
+        wp_next1 = return_waypoint_data(rte_list,obj_list,n,obj_list[n][2][6],0)
+        wp_next2 = return_waypoint_data(rte_list,obj_list,n,obj_list[n][2][6],1)
+
         # Update Object velocity
-        obj_list[n][2][6] = velocity_manager(obj_list,rte_list,n,obj_list[n][2][6],wp_next1_dist,wp_next1_ttg,delta_t) # Manage object velocity
+        obj_list[n][2][6] = velocity_manager(obj_list,rte_list,n,obj_list[n][2][6],wp_next1[3],wp_next1[4],delta_t) # Manage object velocity
         # Update object bearing
-        obj_list[n][2][4] = bearing_manager(obj_list,rte_list,n,obj_list[n][2][4],wp_next1_brg,wp_next2_brg,wp_next1_ttg,delta_t) # Manage object heading
+        obj_list[n][2][4] = bearing_manager(obj_list,rte_list,n,obj_list[n][2][4],wp_next1[2],wp_next2[2],wp_next2[4],delta_t) # Manage object heading
         # Update position
         obj_list[n][2][0],obj_list[n][2][1] = move(obj_list[n][2][0],obj_list[n][2][1],(obj_list[n][2][6] * delta_t),obj_list[n][2][4]) # Move object to new lat and lon, using the distance covered in this tick
+
+        # Update waypoint data
+        wp_next1 = return_waypoint_data(rte_list,obj_list,n,obj_list[n][2][6],0)
+        wp_next2 = return_waypoint_data(rte_list,obj_list,n,obj_list[n][2][6],1)
+
         # Status output
         print("------- "+obj_list[n][0]+"\n"+
               "Pos: "+str(obj_list[n][2][0])+" N, "+str(obj_list[n][2][1])+" E, Heading: "+f'{obj_list[n][2][4]:.1f}'+"°, Velocity: "+f'{obj_list[n][2][6]:.1f}'+" m/s\n"+
-              "Current WP  : "+str(wp_next1_ind+1)+"/"+str(len(rte_list[n][2]))+" ("+str(wp_next1_lat)+" N, "+str(wp_next1_lon)+" E), Bearing: "+f'{wp_next1_brg}'+",Dist: "+f'{(wp_next1_dist/1000):.3f}'+" km, TTG: "+f'{wp_next1_ttg:.2f}'+" s\n"+
-              "Following WP: "+str(wp_next2_ind+1)+"/"+str(len(rte_list[n][2]))+" ("+str(wp_next2_lat)+" N, "+str(wp_next2_lon)+" E), Bearing: "+f'{wp_next2_brg}'+",Dist: "+f'{(wp_next2_dist/1000):.3f}'+" km, TTG: "+f'{wp_next2_ttg:.2f}'+" s\n"
+              "Current WP  : "+str(obj_list[n][3][0]+1)+"/"+str(len(rte_list[n][2]))+" ("+str(wp_next1[0])+" N, "+str(wp_next1[1])+" E), Bearing: "+f'{wp_next1[2]}'+",Dist: "+f'{(wp_next1[3]/1000):.3f}'+" km, TTG: "+f'{wp_next1[4]:.2f}'+" s\n"+
+              "Following WP: "+str(obj_list[n][3][1]+1)+"/"+str(len(rte_list[n][2]))+" ("+str(wp_next2[0])+" N, "+str(wp_next2[1])+" E), Bearing: "+f'{wp_next2[2]}'+",Dist: "+f'{(wp_next2[3]/1000):.3f}'+" km, TTG: "+f'{wp_next2[4]:.2f}'+" s\n"
               )
-
+        obj_x,obj_y,obj_z = xp.worldToLocal(obj_list[n][2][0], obj_list[n][2][1],obj_list[n][2][2])
+        position = (obj_x,obj_y,obj_z,obj_list[n][2][3],obj_list[n][2][4],obj_list[n][2][5]) # X,Y,Z,Pitch,Heading,Roll
+        for m in range(len(obj_list[n][1])):
+            #print(obj_list[n][1][m])
+            xp.instanceSetPosition(obj_list[n][1][m],position,data=None)
         #distance = haversine(obj_list[n][2][0],obj_list[n][2][1],wp_next1_lat,wp_next1_lon) # Update distance to next waypoint
         #if wp_next1_dist <= (obj_list[n][2][6] * delta_t): # Check if the remaining distance is less than the distance that would be covered this tick
         #    waypoint_switcher(obj_list,rte_list,n)

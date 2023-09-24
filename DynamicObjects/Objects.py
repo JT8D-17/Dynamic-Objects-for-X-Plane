@@ -2,6 +2,7 @@
 '''
 MODULES
 '''
+import xp
 from .Helpers import print_list_vert
 from .Movement import haversine
 '''
@@ -44,12 +45,18 @@ def Init_Objects(in_routes):
         init_lat,init_lon = in_routes[n][2][0][0],in_routes[n][2][0][1]
         init_hdg = haversine(init_lat,init_lon,in_routes[n][2][1][0],in_routes[n][2][1][1])
         init_alt,init_pit,init_rol,init_vel = 0,0,0,0
-        # Add list: Identifier,[instances],[initial lat,lon,altitude,pitch,heading,roll,velocity], [next waypoint indices,movement mode,deceleration mode]
+        # Add list: Identifier,[instances],[lat,lon,altitude,pitch,heading,roll,velocity], [next waypoint indices,movement mode,deceleration mode]
         out_list.append([in_routes[n][0][0],[],[init_lat,init_lon,init_alt,init_pit,init_hdg,init_rol,init_vel],[1,0,"FWD",0]])
         # Create object instances
         for m in range(2,len(in_routes[n][0])): # Iterate through objects for given route
             count = count + 1
-            Instanceref = "Instance"+str(count) # Calls loadObject/loadObjectAsync in XP here; need to work around delay in returning object handle for loadObjectAsync!!
+            #Instanceref = "Instance"+str(count) # Non-XP ONLY!
+            Obj_Ref = xp.loadObject(in_routes[n][0][m]) # Calls loadObject/loadObjectAsync in XP here; need to work around delay in returning object handle for loadObjectAsync!!
+            if Obj_Ref is None:
+                print("ERROR: Could not load "+in_routes[n][0][m])
+            Instanceref = xp.createInstance(Obj_Ref, dataRefs=None)
+            if Instanceref is None:
+                print("ERROR: Could not create instance for "+in_routes[n][0][m])
             out_list[len(out_list)-1][1].append(Instanceref)
         # Read current and next 2 waypoints
         if len(in_routes[n][2]) > 2:

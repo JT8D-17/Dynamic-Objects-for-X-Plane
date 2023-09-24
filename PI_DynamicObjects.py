@@ -2,10 +2,10 @@
 '''
 LIBRARIES
 '''
-import os,time
-from XPPython3 import xp,xp_imgui,imgui
-from PI_DynamicObjects.Routes import z_Object_Datarefs
-from PI_DynamicObjects import Helpers,Import_Routes,Objects,Movement
+import os
+from XPPython3 import xp #,xp_imgui,imgui
+from DynamicObjects.Routes import z_Object_Datarefs
+from DynamicObjects import Helpers,Import_Routes,Objects,Movement
 '''
 FUNCTIONS
 '''
@@ -31,12 +31,14 @@ class PythonInterface:
         self.Route_List = [] # Declare route list
         self.Object_List = [] # The list of used objects
         self.delta_t = 0.05 # Update interval for the flight loop
+        self.flightLoopID = None
     '''
     FUNCTIONS
     '''
-    def FlightLoopCallback(sinceLast, elapsedTime, counter, refCon):
+    # Creates a flight loop
+    def FlightLoopCallback(self, sinceLast, elapsedTime, counter, refCon):
         #print(f"{elapsedTime}, {counter}")
-        Movement.move_objects(Object_List,Route_List,delta_t)
+        Movement.move_objects(self.Object_List,self.Route_List,self.delta_t)
         z_Object_Datarefs.run_dref_code()
         return self.delta_t
     '''
@@ -45,7 +47,7 @@ class PythonInterface:
     # Required; Called once by X-Plane on startup (or when plugins are re-starting as part of reload),  You need to return three strings.
     def XPluginStart(self):
         self.Route_List = Import_Routes.Init_Routes() # Initialize routes
-        self.Object_List = Objects.Init_Objects(Route_List) # Initialize objects
+        self.Object_List = Objects.Init_Objects(self.Route_List) # Initialize objects
         # Menu
         #xp.appendMenuItemWithCommand(xp.findPluginsMenu(), 'Dynamic Objects', self.cmd)
         return self.Name, self.Sig, self.Desc
@@ -54,15 +56,21 @@ class PythonInterface:
         pass
     # Required, called once by X-Plane, after all plugins have "Started" (including during reload sequence), you need to return an integer 1, if you have successfully enabled, 0 otherwise.
     def XPluginEnable(self):
-        print("Enabling Dynamic Objects for X-Plane")
-
-        self.FlightLoop_ID = xp.createFlightLoop(FlightLoopCallback, phase=0, refCon=None)
+        print("DynObjXP: Enabled")
+        self.FlightLoop_ID = xp.createFlightLoop(self.FlightLoopCallback, phase=0, refCon=None)
         xp.scheduleFlightLoop(self.FlightLoop_ID,interval=1)
+        print("DynObjXP: Flight loop created with interval"+f'{self.delta_t:.3f}')
         return 1
     # Called once by X-Plane, when plugin is requested to be disabled. All plugins are disabled prior to Stop. Return is ignored.
     def XPluginDisable(self):
-         xp.destroyFlightLoop(self.flightLoopID)
-         print("DynObjXP: Flightloop Terminated")
+        for n in range(len(self.Object_List)):
+            for m in range(len(obj_list[n][1])):
+                xp.destroyInstance(obj_list[n][1][m])
+        print("DynObjXP: Instances Destroyed")
+        if self.flightLoopID:
+            xp.destroyFlightLoop(self.flightLoopID)
+            self.flightLoopID = None
+        print("DynObjXP: Flightloop Terminated")
         pass
     # Called by X-Plane whenever a plugin message is being sent to your plugin. Messages include MSG_PLANE_LOADED, MSG_ENTERED_VR, etc., as described in XPLMPlugin module. Messages may be custom inter-plugin messages, as defined by other plugins. Return is ignored
     def XPluginReceiveMessage(self, inFromWho, inMessage, inParam):
