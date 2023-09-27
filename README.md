@@ -76,6 +76,7 @@ For trains and dynamic scenery objects (including trains) in limited areas, use 
 
 - X-Plane >11.50 or >12.00
 - [XPPython3](https://xppython3.readthedocs.io/en/latest/)
+- Pyopengl installed from XPPython3's PIP installer or as a system package
 
 &nbsp;
 
@@ -86,6 +87,8 @@ For trains and dynamic scenery objects (including trains) in limited areas, use 
 <a name="4.0"></a>
 ## 4 - Installation
 
+- Start X-Plane
+- Open the Pip Package Installer with _"Plugins --> XPPython3 --> Pip Package Installer"_, enter ```pyopengl```, then click "Install"   
 - Copy the _"PI_DynamicObjects"_ folder into _"[X-Plane 11/12 main folder]/Resources/plugins/PythonPlugins"_
 
 &nbsp;

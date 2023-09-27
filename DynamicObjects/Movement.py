@@ -63,19 +63,23 @@ def velocity_manager(obj_list,rte_list,ind,obj_vel,wp_dist,wp_ttg,delta_t):
         if rte_list[ind][3][0] == "LOOP": # Only for looping routes
             target_vel = check_wp_vel_limit(rte_list,ind,wp_ind)
         else:
-            if obj_list[ind][3][3] == 0:
+            #if obj_vel == check_wp_vel_limit(rte_list,ind,wp_ind) and wp_dist < (0.5 * rte_list[ind][1][0] * wp_ttg**2):
+            #    target_vel = 0
+            #else:
                 target_vel = check_wp_vel_limit(rte_list,ind,wp_ind)
-                 #if wp_ttg > (obj_vel / accel) and obj_list[ind][3][3] == 0:
-                if obj_vel == check_wp_vel_limit(rte_list,ind,wp_ind) and wp_dist < (0.5 * obj_vel**2 / accel):
-                #if obj_vel == check_wp_vel_limit(rte_list,ind,wp_ind) and wp_ttg <= (obj_vel / accel):
-                    target_vel = 0 # Stop at route start or route end
-                    obj_list[ind][3][3] = 1 # Set deceleration mode
+            #if obj_list[ind][3][3] == 0 and wp_dist > 0:
+            #    target_vel = check_wp_vel_limit(rte_list,ind,wp_ind)
+            #     #if wp_ttg > (obj_vel / accel) and obj_list[ind][3][3] == 0:
+            #    if wp_dist < (0.5 * obj_vel**2 / accel):
+             #   #if obj_vel == check_wp_vel_limit(rte_list,ind,wp_ind) and wp_ttg <= (obj_vel / accel):
+            #        target_vel = 0 # Stop at route start or route end
+            #        obj_list[ind][3][3] = 1 # Set deceleration mode
 
     else:
         target_vel = check_wp_vel_limit(rte_list,ind,wp_ind)
 
 
-    print(target_vel, (obj_vel / accel),obj_list[ind][3][3])
+    print(obj_list[ind][0],(obj_vel / rte_list[ind][1][0]))
 
     if obj_vel < target_vel:
         obj_vel = obj_vel + accel # Accelerate
@@ -159,25 +163,8 @@ def return_waypoint_data(rte_list,obj_list,index,in_vel,offset):
     return (lat2,lon2,out_brg,out_dist,out_ttg)
 
 # Main object movement function
-def move_objects(obj_list,rte_list,delta_t):
+def move_objects(obj_list,rte_list,delta_t,out_info):
     for n in range(len(obj_list)): # Iterate through object list
-        # Next waypoint
-        #wp_next1 = return_waypoint_data(rte_list,obj_list,n,obj_list[n][2][6],0)
-        #wp_next2 = return_waypoint_data(rte_list,obj_list,n,obj_list[n][2][6],1)
-
-
-        #,wp_next1_dist,wp_next1_brg = return_waypoint_data(rte_list,obj_list,obj_list[n][3][0])
-        #wp_next2_lat,wp_next2_lon,wp_next2_dist,wp_next2_brg = return_waypoint_data(rte_list,obj_list,obj_list[n][3][1])
-        #wp_next1_ind = obj_list[n][3][0] # Index
-        #wp_next1_lat,wp_next1_lon = rte_list[n][2][wp_next1_ind][0],rte_list[n][2][wp_next1_ind][1] # Coordinates
-        #wp_next1_dist = haversine(obj_list[n][2][0],obj_list[n][2][1],wp_next1_lat,wp_next1_lon) # Distance from current position
-        #wp_next1_brg = calc_bearing(obj_list[n][2][0],obj_list[n][2][1],wp_next1_lat,wp_next1_lon) # Current bearing
-        # Waypoint after next waypoint
-        #wp_next2_ind = obj_list[n][3][1] # Index
-        #wp_next2_lat,wp_next2_lon = rte_list[n][2][wp_next2_ind][0],rte_list[n][2][wp_next2_ind][1] # Coordinates
-        #wp_next2_dist = haversine(wp_next1_lat,wp_next1_lon,wp_next2_lat,wp_next2_lon) + wp_next1_dist # Distance from current position, considering next waypoint
-        #wp_next2_brg = calc_bearing(wp_next1_lat,wp_next1_lon,wp_next2_lat,wp_next2_lon) # Bearing between waypoints
-
         # Initial waypoint data assignment
         wp_next1 = return_waypoint_data(rte_list,obj_list,n,obj_list[n][2][6],0)
         wp_next2 = return_waypoint_data(rte_list,obj_list,n,obj_list[n][2][6],1)
@@ -194,11 +181,22 @@ def move_objects(obj_list,rte_list,delta_t):
         wp_next2 = return_waypoint_data(rte_list,obj_list,n,obj_list[n][2][6],1)
 
         # Status output
+        '''
         print("------- "+obj_list[n][0]+"\n"+
               "Pos: "+str(obj_list[n][2][0])+" N, "+str(obj_list[n][2][1])+" E, Heading: "+f'{obj_list[n][2][4]:.1f}'+"°, Velocity: "+f'{obj_list[n][2][6]:.1f}'+" m/s\n"+
               "Current WP  : "+str(obj_list[n][3][0]+1)+"/"+str(len(rte_list[n][2]))+" ("+str(wp_next1[0])+" N, "+str(wp_next1[1])+" E), Bearing: "+f'{wp_next1[2]}'+",Dist: "+f'{(wp_next1[3]/1000):.3f}'+" km, TTG: "+f'{wp_next1[4]:.2f}'+" s\n"+
               "Following WP: "+str(obj_list[n][3][1]+1)+"/"+str(len(rte_list[n][2]))+" ("+str(wp_next2[0])+" N, "+str(wp_next2[1])+" E), Bearing: "+f'{wp_next2[2]}'+",Dist: "+f'{(wp_next2[3]/1000):.3f}'+" km, TTG: "+f'{wp_next2[4]:.2f}'+" s\n"
               )
+        '''
+        #Object: 0:Alias,1:Lat,2:Lon,3:Hdg,4:Vel,5:Total WP
+        #Next WP: 6:Index,7:Lat,8:Lon,9:Brg,10:Dist,11:TTG,
+        #Follow-Up WP: 12:Index,13:Lat,14:Lon,15:Brg,16:Dist,17:TTG
+        out_info.append([obj_list[n][0],obj_list[n][2][0],obj_list[n][2][1],obj_list[n][2][4],obj_list[n][2][6],len(rte_list[n][2]),
+                         obj_list[n][3][0],wp_next1[0],wp_next1[1],wp_next1[2],wp_next1[3],wp_next1[4],
+                         obj_list[n][3][1],wp_next2[0],wp_next2[1],wp_next2[2],wp_next2[3],wp_next2[4]])
+        #print(out_info)
+
+        # Update X-Plane instances
         obj_x,obj_y,obj_z = xp.worldToLocal(obj_list[n][2][0], obj_list[n][2][1],obj_list[n][2][2])
         position = (obj_x,obj_y,obj_z,obj_list[n][2][3],obj_list[n][2][4],obj_list[n][2][5]) # X,Y,Z,Pitch,Heading,Roll
         for m in range(len(obj_list[n][1])):
