@@ -1,5 +1,10 @@
 # Dynamic Objects for X-Plane
 
+&nbsp;
+
+**This project is inactive!**
+
+&nbsp;
 
 <a name="toc"></a>
 ## Table of Contents
@@ -178,6 +183,7 @@ Add any limitations to the waypoints, then add the OBJECT line and all its requi
 ## 8 - Credits
 
 - Laminar Research - Models and Textures in "Ships"
+- X-CSL - C172.obj and C172.png
 - Various Stackoverflow contributors for code examples (see various code comments)
 
 &nbsp;
