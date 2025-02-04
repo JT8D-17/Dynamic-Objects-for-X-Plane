@@ -11,11 +11,11 @@ End_Mode = "LOOP" # The default route terminator
 End_Wait_Time = 0 # The default wait time at the last waypoint
 Obj_Heading_Rate = 5 # The object' turn rate in °/s
 Obj_Vel_Max = 15 # The default maximum object velocity in m/s
-Obj_Vel_Rate = 5 # The default acceleration in m/s²/mnt/Data/X-Plane_12_Develop/
+Obj_Vel_Rate = 5 # The default acceleration in m/s²
 Obj_Pitch_Max = 30 # The default maximum object pitch in °
-Obj_Pitch_Rate = 1 # The object's pitch rate in °/s
+Obj_Pitch_Rate = 10 # The object's pitch rate in °/s
 Obj_Roll_Max = 30 # The default maximum object roll in °
-Obj_Roll_Rate = 3 # The object's roll rate in °/s
+Obj_Roll_Rate = 10 # The object's roll rate in °/s
 WP_AltMode = "AGL" # The default altitude reference
 WP_AltOffset = 0 # The default altitude offset at waypoints
 WP_Vel = -1 # The default maximum velocity for a waypoint (determined by object)
@@ -33,7 +33,7 @@ def Init_Routes():
         for file in files:  # Do for files
             if file.startswith("Route_") and file.endswith(".txt"): # Find all "Route_...txt" files
                 print("\nROUTE FILE READ: "+file+"")
-                with open(os.path.join(root, file)) as in_file: # Open route file
+                with open(os.path.join(root, file), encoding='utf-8') as in_file: # Open route file
                     list_lines = [line.rstrip('\n') for line in in_file] # Read all lines
                     line_count = 0 # Reset line counter in new file
                 for n in list_lines:

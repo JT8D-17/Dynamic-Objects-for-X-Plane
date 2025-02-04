@@ -18,7 +18,7 @@
 # LOOP, RETURN, STOP = Route termination specifiers, wait time (seconds) at last waypoint with LOOP or RETURN
 #
 
-OBJECT,,SHIP,LOCAL/Ships/Sail_490_01.obj
+OBJECT,,SHIP,XPROOT/Resources/default scenery/sim objects/ships/parts/BulkCarrier_190A_BaseModel.obj
 POINT,54.1669062,13.7416649
 POINT,54.1688658,13.7436390,,,20
 POINT,54.1738901,13.7457848,,,30
@@ -27,7 +27,7 @@ POINT,54.1699712,13.7541962,,,90
 POINT,54.1674590,13.7512779
 LOOP
 
-OBJECT,,,XPROOT/Resources/default scenery/sim objects/ships/Whaler_518_03.obj
+OBJECT,,,XPROOT/Resources/default scenery/sim objects/ships/parts/OilTanker_183B_BaseModel.obj
 POINT,54.1593182,13.7381458,,
 POINT,54.1697200,13.7352276
 RETURN

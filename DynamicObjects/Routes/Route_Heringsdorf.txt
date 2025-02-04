@@ -1,0 +1,40 @@
+# ROUTE FILE FORMAT SPECIFICATION
+#
+# OBJECT definition
+# Requires at least 4 elements:
+# OBJECT,name,type,path to OBJ
+# Paths MUST start with XPROOT (X-Plane folder) or LOCAL (PythonPlugins/DynamicObjects)
+# Append paths to additional objects for this route with a comma at the end of the line, e.g. ...,XPROOT/path/to/obj1,LOCAL/path/to/obj2
+# If an object uses dataref(s), append then divided by a semicolon aftrer the path to the object, e.g. XPROOT/path/to/myobj3;object/dataref/1;object/dataref/2
+#
+# PERFORMANCE definition (optional)
+# PERFORMANCE, acceleration in m/s2, pitch rate in °/s, heading rate in °/s, roll rate in °/s, maximum velocity in m/s, maximum pitch in °, maximum bank in °
+#
+# POINT definition
+# Requires the first 3 elements, the rest are optional:
+# POINT, latitude (decimal), longitude (decimal), elevation reference, elevation offset in m,maximum velocity on leg to waypoint in m/s
+# Elevation reference: AGL = above ground, ABS = absolute
+#
+# LOOP, RETURN, STOP = Route termination specifiers, wait time (seconds) at last waypoint with LOOP or RETURN
+#
+
+OBJECT,Cessna_Test,AIRPLANE,LOCAL/Aircraft/C172.obj
+
+PERFORMANCE,,,,,61,15,45
+
+# Route created with https://www.gpsvisualizer.com/draw/
+# POINT,53.8809196,14.1387928,AGL,0,5
+POINT,53.8786365,14.1527939,AGL,0,36
+POINT,53.8761508,14.1678357,AGL,100,52
+POINT,53.8687246,14.1633081,ABS,300,52
+POINT,53.8795029,14.0933132,ABS,300,52
+POINT,53.8858775,14.0982914,AGL,250,52
+POINT,53.8843093,14.1171527,AGL,200,40
+POINT,53.8808058,14.1391468,AGL,0,35
+POINT,53.8786112,14.1527832,AGL,0,8
+POINT,53.8775834,14.1523272,AGL,0,8
+POINT,53.8778617,14.1472739,AGL,0,8
+POINT,53.8775455,14.1472149,AGL,0,8
+POINT,53.8776403,14.1452193,AGL,0,8
+POINT,53.8770806,14.1451389,AGL,0,8
+STOP
